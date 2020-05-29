@@ -1,0 +1,302 @@
+---
+title: "Global Terror and The Arms Trade"
+author: "Matthew De La Roca,Arnon Bunyatipanon,Jonathan Thomas,Shourya Srivastava"
+date: "February 26, 2020"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("analysis.R")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+```
+
+## Domain
+
+As reported by [SIPRI](https://www.sipri.org/) (Stockholm International Peace Research Institute) global military spending has continued to [increase](https://www.sipri.org/sites/default/files/2019-04/fs_1904_milex_2018_0.pdf). Since the war on terror began at the outset of the 21st century, severl questions remain. Given the increase in military spending, has global terror been decreasing in its intensity or getting more severe? Have arms deals with non-state groups increased, and have these deals affected the rate of terror attacks? How has the nature of terror changed, the targets, and nations involved? Additionally, recent arms buildup can give us information on areas of rising tensions. This data is significant due its ability to further elucidate problems regarding the state of global security today, and possibly point us to trends into the future. It is possible that the nature of military spending today is in response to other threats on the horizon and the war on terror is waning, but the opposite may also be true. Before we proceed it may be useful to familirize yourself with some fo the major terrorist groups that have been active in the past few years. 
+
+- [The Communist Party of India](https://en.wikipedia.org/wiki/Communist_Party_of_India_(Marxist))
+
+- [The Taliban](https://en.wikipedia.org/wiki/Taliban)
+
+- [Boko Haram](https://en.wikipedia.org/wiki/Boko_Haram)
+
+- [ISIS](https://en.wikipedia.org/wiki/Islamic_State_of_Iraq_and_the_Levant)
+
+
+
+
+## Analysis Questions
+
+
+*1.Have arms imports to non-state entities been increasing and has this had any visible effect on the number of terrorist attacks occuring?*
+
+This question is relevent as it can lead to insights on how the arms trade to non-state parties can effect terrorism. Is it advisable to sell weapons to rebel groups, even if they are on your side, or in contrast, does it actually have a benefit?
+
+*2.How do the major terrorist groups differ in strategy by weapon of choice?*
+
+Since many of the world's nations struggle in the fight against terrorism, it is important to know the modus operandi of various terror groups,and how to best prevent attacks. Does a terror group have a history of using chemical weapons, bombs or Firearms?
+
+
+*3. When countries import more weapons, will their likelihood of accomplishing successful attacks increase?*
+Due to the underlying nature of unpredictability and varying factors on the battlefield, it is difficult to determine whether an increase in arms imports enables a country to be more successful in attacks.This question aims to provide a better understanding of the relationship between weapon imports and the probability of completing successful attacks.
+
+*4. Is terrorism a practical concern for all countries around the globe? *
+While its a fact that terrorism is a global humanitarian crisis, there are still many countries who are not that focused on combating these organizations. This question aims to understand why certain countries do not give fighting terrorism that high of a priority?
+
+## Summary of The Data
+
+### Dataset: Global Terrorism Database
+
+Our first main data set is a database file detailing all terrorist acts that have occured since 1970, for the purpose of this project we have selected only terrorist attacks occuring after 2000. This data set contains a rich variety of information on these attacks, such as deatailing the weapon used, target, and location. 
+
+This data set originates from the [Global Terrorism Database](https://www.start.umd.edu/gtd/) compiled by a research consortium called [START](https://en.wikipedia.org/wiki/National_Consortium_for_the_Study_of_Terrorism_and_Responses_to_Terrorism). START is located at the University of Maryland and is funded by the Department of Homeland Security. Their methodology includes using AI as well as Human researchers to compile this data.
+
+**Here is a sample of our dataset**
+
+```{r,include=FALSE}
+sample_terrorism <- terrorism_data %>% select(33:37) %>% head(5)
+table_sample <- kable(sample_terrorism)
+```
+
+`r table_sample`
+
+
+Here is a sample of some of column names that will be useuful for our project:
+
+- country_txt = the country that the attack took place in
+- region = the region that the attack occured in
+- attacktype1_txt = the nature of how the attack occured
+- targtype1_txt = the building or people targeted.
+- gname = the name of the terrorist organization that commited the act.
+- weaptype1_txt = the type of weapon used during the attack
+
+Overall there were over 47 variables present in this data set, we did filter it down to less, but these are the main columns that will be used in our project.
+
+
+### Dataset: Global Arms Transfers Database
+
+This dataset details the value of weapons both imported and exported from all countries in the world since 1950, but for the sake of our project, we will only be using data since 2000. The data set additionally lists all arms transfers to non-state groups, which includes terrorist groups.
+
+The Global Arms Transfers data was compiled by [SIPRI](https://www.sipri.org/) (Stockholm International Peace Research Institute), which has been collected data on the arms trade and conflict for 50 years. The SIPRI institute is funded by the Swedish Government and counts around 60 academic researchers among its ranks. The World Bank also uses this data to track arms shipments.
+
+**Here is a sample of the data**
+
+```{r, include=FALSE}
+sample_import <- arms_import_wr %>% select(1:5) %>% .[10:15,1:5] %>% arrange(-`2000`) %>% kable()
+sample_export <- arms_export_wr %>% select(1:5) %>% .[10:15,1:5] %>% arrange(-`2000`) %>% kable()
+```
+
+`r sample_import`
+
+`r sample_export`
+
+Here are some of the columns/ data fields that will be used:
+
+- country = the country of origin in the case of exports or the destination in the case of imports.
+
+- year = the year the arms shipments were made.
+
+### Summary Analysis: Global Terrorism Database
+
+From the Global Terrorism Database (GTDB) we decided to focus on a few main features:
+
+* Year
+* Country
+* Region
+* Success Rate
+* Attack Type
+* Target Type
+* Weapon Type
+* Group Name
+* Number of Kills
+* Number of Wounded
+
+Below are some tables with statistics that we thought were interesting and relevant to the questions we wanted to answer:
+
+**Frequency of Terrorist attacks in different countries**
+`r kable(counts_country)`
+
+**Distribution of Terrorists attacks from 2000 to 2018**
+`r kable(iyear_summary)`
+
+**Distribution of method of terror inflicted**
+`r kable(counts_attacktype)`
+
+**Distribution of the type of target in attacks**
+`r kable(counts_targtype)`
+
+**Distribution of the type of weapon used in attacks**
+`r kable(counts_weaptype)`
+
+**Top 30 Most Active Terrorist Group and their success rate**
+`r kable(gname_summary)`
+
+
+**Top 10 Countries by Arms Imports**
+
+`r kable(arms_summary_table)`
+
+**Top 10 countries of Arms Exports**
+
+`r kable(arms_summary_table_export)`
+
+**Top 10 Non-state arms Importers**
+
+`r kable(non_state_import)`
+
+**The size arms Industry from 2018 and Size of Median Trade**
+
+`r kable(arms_export_years)`
+
+
+```{r echo=FALSE}
+#top_10_country_imports_plot
+```
+
+**Number of imports over time**
+
+```{r echo=FALSE}
+imports_over_time_plot
+```
+
+**Number of attacks over time**
+
+```{r echo=FALSE}
+attacks_over_time_plot
+```
+
+**Number of Terrorist Attacks and Average Success Rate of Attacks Over Time**
+
+```{r echo=FALSE}
+success_rate_time_plot
+```
+
+### Outliers
+
+We believe there are some significant outliers in our datasets although not all are significant. We chose these datasets with the expectation that some numbers may appear skewed due to the wide difference in factors associated with the records in our data set.
+For example, the range of number of attacks between records may seem drastic but this is likely due to the difference in the size of the countries associated with our dataset. In our terrorism data set, 9/11 may be an outlier because it is and was the deadliest terrorist attack by significant measure and may skew some results. In the arms imports and exports data there are some notable countries that have large arms industries such as China, Russia and the USA,that may change the shape of the data. Lastly in the non-state arms imports data, there was one large outlier, as in 2002 over 200 million dollars in arms was tranfered to the [Northern Alliance](https://en.wikipedia.org/wiki/Northern_Alliance) in Afghanistan, which consititued one of the largest official transfers of arms to a non-state force since 2000.
+
+## Analysis Section
+
+### 1. Have arms imports to non-state entities been increasing and has this had any visible effect on the number of terrorist attacks occuring?
+
+Introduction: This question addresses the current arms trade to non-state entities. This includes paramilitary forces, rebel groups and insurgencies. Often states will often give money or money to non-state groups in order to advance their national interests, one example of this being the U.S supplying the [Mujahadeen](https://en.wikipedia.org/wiki/Mujahideen) with arms during the [Soviet Afghan War(1979-1989)](https://en.wikipedia.org/wiki/Soviet%E2%80%93Afghan_War). Oftentimes these weapons become unaccounted for, and are even used against the very power that supplied them. Do these arms transfers have a noticable negative effect down stream or are they negligable in the bigger picture?
+
+Method: I decided to plot the number of casualties from terror attacks from 2000-2018, against the value of arms sales sold to non-state groups from 2000-2018. I first used the causality(nkill) column from the terrorism data base and grouped by year, as well as filtering the arms sales to only non-state enttities as denoted by an * in the data set.
+
+```{r, echo=FALSE}
+terrorism_arms_plot
+```
+
+Results: the max number of arms sold to non state entities during a given year between 2000-2018 was in 2002 with 208 million dollars in arms transfered to non state entities, with the largest of these being a major transfer to the [Northern Alliance](https://en.wikipedia.org/wiki/Northern_Alliance) a major insurgent group that was seen as the Taliban's main rival during the early 2000s. Overall the worst year for Terror Casualties was 2013 with 44,492 deaths from terror attacks, which makes sense given the rise of ISIS, the ongoing Syrian Civil war and the various intense attacks undertaken by Boko Haram in Nigeria during this period. 
+
+Interpretation: It seems as though arms sales to non-state and paramilitary forces spiked heavily in 2002 , and enjoyed an increase in 2014-2015 as well as in 2018. Although it is not-conclusive it seems as though there is an increase in arms sales to non-state forces, some of which are terrorist groups in between periods of intense terrorism. Whether this data could be used to predict increases in terrorist attacks in the future is not totally clear, but it may be a signal that rebel groups and insurgents will often turn to buy arms on the open market when they are in dire need to stock up for offensives. Much of the arms data regarding non-traditional armies is unclear, as many of them are under arms embargos and either trade illegally, or simply capture their weapons during conflict.
+
+
+### 2. How do the major terrorist groups differ in strategy in their weapon of choice?
+Introduction: Depending on the goals and location of a terror group, their methods of attack may change. Is this generally true or do terror groups often use similar tried and true strategies regardless of location? Does the Kurdish group the PKK, differ in its attacks from ISIL, or do Communist groups such as the Communist Party of India the New People's Army of the Phillipines choose to fight differenltly.
+
+
+Methods: I wrangeled the data so that the terror attacks of all groups were split by type of attack, after gathering the data, I created a stacked bargraph for the 10 most active terror groups by trying fill to attack type. Here is a small snippit of some of the columns and rows of the table I gathered the data by attack onto:
+
+```{r,include=FALSE}
+attack_data_sample <- attack_data %>% head(5) %>% select(1:5)
+```
+
+
+`r kable(attack_data_sample)`
+
+**Strategy by Terror Group**
+
+```{r plot2,fig.height=6,fig.width=11 ,fig.align='center',echo=FALSE}
+attack_plot
+```
+
+Results: The average Terror group on this plot committed `r mean(attack_data$sum_attacks)` from 2000-2018, of these attacks `r sum(attack_data$Explosives)` where bomb attacks, `r sum(attack_data$Firearms)` were with small arms, `r sum(attack_data$Incendiery)` used an incideniery device and `r sum(attack_data$Unknown)` were perpretrated with an unknown method. All but the New People's Army and the Communist Party of India prefered explosives over firearms, with the New People's Army commiting `r attack_data[5,6]` firearms attacks vs `r attack_data[5,4]` bomb attacks and the Communist Party of India commiting `r attack_data[6,6]` firearms attacks vs `r attack_data[6,4]` bomb attacks.
+
+
+Interpretation: Although bomb and Firearm attakcs seem to be the most common type across the board among terror groups, various groups use them in different proportions, with group like the Taliban using firearms and explosives in similar proportions, or Communist Extremists like the CPI and The New People's Army preferring the use of Fire arms. The communist forces based in India, such as the Maoists and CPI also seem to use incendiary attacks proportionally more than the other terror groups. The only Terror groups among the top 10 to have uses Chemical attacks in any noticible measure are the Taliban and ISIL.
+
+### 3. When countries import more weapons, will their likelihood of accomplishing successful attacks increase?
+
+Introduction: Due to the underlying nature of unpredictability and varying factors on the battlefield, it is difficult to determine whether an increase in arms imports enables a country to be more successful in attacks. This question aims to provide a better understanding of the relationship between weapon imports and the probability of completing successful attacks. 
+
+Terminology:
+Success Rate: represents the percentage of attacks from in specified year. Attacks are considered successful if the intentions of the attacking group are completed. For example: assassinating someone or hurting a certain amount of people [SIPRI](https://www.sipri.org/).
+Arms industry:The arms industry, also known as the defense industry or the arms trade, is a global industry which manufactures and sells weapons and military technology, and is a major component of the Militaryâ industrial complex
+Imports: are defined as purchases of good or services by a domestic economy from a foreign economy
+
+Methods: We transposed our imports dataset from SIPRI so that years were placed as rows then wrangled the data to grouping by year and summing the number of imports withing each year. Additionally, we wrangled our terrorism data, grouping by year, summing the number of successful attacks then divided that by total number of attacks for for each year. After gathering the data, I created a bar graph to portray the total number of imports and average success rate of attacks yearly from 2000 to 2018.
+
+
+```{r Q3, echo=FALSE}
+success_rate_number_of_imports_plot
+kable(arms_import_to_2018_mean_success)
+
+```
+
+Results:
+Consistent (Increase in Imports = Higher Average Success and Vice Versa):
+
+- 2000 to 2001
+- 2002 to 2003
+- 2003 to 2004
+- 2004 to 2005
+- 2005 to 2006
+- 2010 to 2011
+- 2012 to 2013 
+- 2014 to 2015
+- 2017 to 2018
+
+Inconsistent:
+
+- 2001 to 2002
+- 2006 to 2007
+- 2007 to 2008
+- 2008 to 2009
+- 2009 to 2010
+- 2011 to 2012
+- 2013 to 2014
+- 2015 to 2016
+- 2016 to 2017
+
+Evaluation:
+From 2000 to 2005 it seemed like there was a strong correlation in more weapon imports leading to a stronger likelihood of succesful attacks. However, this correlation grew weaker eventually balancing out with 9 results backing up the hypothesis and 9 results not backing up the hypothesis. This was not the result we expected, however, we also see that our method to test this question may be flawed. For example, many factors beyond number of weapons go into determining whether an attack will be successful. Additionally, comparing attack rates by number of imports per year may not be the best way to isolate our data to get the most accurate results. It may better seperate the data into number of imports for different countries for the years 2000 to 2018 then creating a visualization to analyze the attack rate for each seperate country.
+
+
+## *4. Is terrorism a practical concern for all countries around the globe? *
+While its a fact that terrorism is a global humanitarian crisis, there are still many countries who are not that focused on combating these organizations. This question aims to understand why certain countries do not give fighting terrorism that high of a priority?
+ 
+Terminology:
+iso3c: iso3c are three-letter country codes defined in ISO 3166-1, part of the ISO 3166 standard published by the International Organization for Standardization (ISO), to represent countries, dependent territories, and special areas of geographical interest.
+long: the angular distance of a place east or west of the meridian at Greenwich, England, or west of the standard meridian of a celestial object, usually expressed in degrees and minutes.
+lat: the angular distance of a place north or south of the earth's equator, or of a celestial object north or south of the celestial equator, usually expressed in degrees and minutes.
+
+Methods: From the raw dataframe, we made a smaller one with the relevant features (ie. Relevant years: 2000 to 2018) and used the iso.alpha function to add a column with iso3c codes for each country. We grouped the data by country, region, iso3c and counted the frequency of terrorist attacks in each country. To get the longitude and latitude of each country, we left-joined our data frame with the world map data from the library "maps". To further group the data, we divided it into 9 sections each representing a bin of a range of terrorist attacks encountered in a country. We sectioned them with labels which were stored in a new column. With the data finally wrangled, we presented it in the form of a map with countries filled in with color depending on the label assigned to them.
+
+```{r echo=FALSE}
+world_terrorist_attacks_plot
+```
+
+The map clearly depicts the distribution of terrorist attacks globally, split into the following nine categories: 
+
+* lesser than 10
+* 10 to 50
+* 50 to 100
+* 100 to 300
+* 300 to 500
+* 500 to 1000
+* 1000 to 5000
+* 5000 to 10000
+* greater than 10000
+* N/A (for countries that did not have any attacks)
+
+Results: 
+The distribution of the colors on the map shows a large disparity in the number of attack that countries face. `r median(counts_country$n)` is the median number of attacks faced by all countries, which is very low when compared to the highest values. This tells us that most countries do not face the threat of terrorist attacks, it is just prevalent in a few countries.
+
+Evaluation: 
+When we compare this to the average number of attacks per country `r sum(counts_country$n)/nrow(counts_country)` attacks. This mean, however cannot be used as a reliable estimation as we have alot of significant outliers. The map depicts a majority of the countries either at the end of the spectrum or with a very low numbr of attacks with not very many in the middle. Therefore, we have some countries who are drastically affected by terrorism, such as `r top_country_attacks$country_txt`, which has the highest number of attacks faced at `r top_country_attacks$n` and then a country like `r bottom_country_attacks$country_txt` which faced the lowest number of attacks at `r bottom_country_attacks$n` in the given time period. Therefore, it is difficult to unite countries who face such varying levels of threats in fighting terrorism on a global scale. 
